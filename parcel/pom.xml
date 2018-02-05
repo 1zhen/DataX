@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>datax-all</artifactId>
+        <groupId>com.alibaba.datax</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>parcel</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <source.skip>true</source.skip>
+        <top.dir>${project.basedir}/..</top.dir>
+        <maven.test.skip>true</maven.test.skip>
+        <parcel.patch.count>0</parcel.patch.count>
+        <parcel.release>0.${parcel.patch.count}</parcel.release>
+        <parcel.folder>DATAX-${datax-project-version}-${cdh.version}.p${parcel.release}</parcel.folder>
+        <parcel.file>${parcel.folder}.parcel</parcel.file>
+        <parcel.version>${datax-project-version}-${cdh.version}.p${parcel.release}</parcel.version>
+        <parcel.base.version>${datax-project-version}</parcel.base.version>
+        <parcel.full.version>${datax-project-version}-${cdh.version}.p${parcel.release}</parcel.full.version>
+        <parcel.package.version>${datax-project-version}+${cdh.version}+${parcel.patch.count}</parcel.package.version>
+        <parcel.component.version>${datax-project-version}-${cdh.version}</parcel.component.version>
+        <parcel.component.release>${cdh.version}.p${parcel.release}</parcel.component.release>
+        <parcel.depends>CDH (= ${cdh.version.number})</parcel.depends>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- No jars created for this module -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>none</phase>
+                        <goals/>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-parcel</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${parcel.file}</finalName>
+                            <attach>false</attach>
+                            <tarLongFileMode>gnu</tarLongFileMode>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/build/parcel.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.json</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Depend on all other internal projects -->
+        <dependency>
+            <groupId>com.alibaba.datax</groupId>
+            <artifactId>datax-core</artifactId>
+            <version>${datax-project-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.datax</groupId>
+            <artifactId>datax-common</artifactId>
+            <version>${datax-project-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.datax</groupId>
+            <artifactId>datax-transformer</artifactId>
+            <version>${datax-project-version}</version>
+        </dependency>
+    </dependencies>
+</project>

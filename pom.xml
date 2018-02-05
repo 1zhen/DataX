@@ -13,8 +13,25 @@
         </dependency>
     </dependencies>
 
+    <parent>
+        <groupId>com.cloudera.cdh</groupId>
+        <artifactId>cdh-root</artifactId>
+        <version>5.11.2</version>
+    </parent>
+
     <name>datax-all</name>
     <packaging>pom</packaging>
+
+    <repositories>
+        <repository>
+            <id>cdh.repo</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos</url>
+            <name>Cloudera Repositories</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <properties>
         <datax-project-version>0.0.1-SNAPSHOT</datax-project-version>
@@ -32,6 +49,9 @@
         <junit-version>4.11</junit-version>
         <tddl.version>5.1.22-1</tddl.version>
         <swift-version>1.0.0</swift-version>
+
+        <cdh.version.number>${cdh.parent.version}</cdh.version.number>
+        <cdh.version>cdh${cdh.version.number}</cdh.version>
 
         <project-sourceEncoding>UTF-8</project-sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -88,6 +108,7 @@
         <!-- common support module -->
         <module>plugin-rdbms-util</module>
         <module>plugin-unstructured-storage-util</module>
+        <module>parcel</module>
     </modules>
 
     <dependencyManagement>

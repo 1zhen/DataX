@@ -1,0 +1,30 @@
+{
+    "schema_version": 1,
+    "name": "DATAX",
+    "version": "${parcel.version}",
+    "groups": [],
+    "extraVersionInfo": {
+        "baseVersion": "${parcel.base.version}",
+        "fullVersion": "${parcel.full.version}",
+        "patchCount": "${parcel.patch.count}"
+    },
+    "packages": [
+        {
+            "version": "${parcel.package.version}",
+            "name": "datax"
+        }
+    ],
+    "components": [
+        {
+            "name": "datax",
+            "version": "${parcel.component.version}",
+            "pkg_version": "${parcel.package.version}",
+            "pkg_release": "${parcel.component.release}"
+        }
+    ],
+    "scripts": {},
+    "depends": "${parcel.depends}",
+    "provides": [],
+    "setActiveSymlink": true,
+    "users": {}
+}

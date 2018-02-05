@@ -1,0 +1,20 @@
+{
+    "datax.py": {
+      "destination": "/usr/bin/datax.py",
+      "source": "lib/datax/bin/datax.py",
+      "priority": 10,
+      "isDirectory": false
+    },
+    "dxprof.py": {
+      "destination": "/usr/bin/dxprof.py",
+      "source": "lib/datax/bin/dxprof.py",
+      "priority": 10,
+      "isDirectory": false
+    },
+    "perftrace.py": {
+      "destination": "/usr/bin/perftrace.py",
+      "source": "lib/datax/bin/perftrace.py",
+      "priority": 10,
+      "isDirectory": false
+    }
+}
