@@ -4,7 +4,7 @@
 
     <groupId>com.alibaba.datax</groupId>
     <artifactId>datax-all</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${datax-project-version}</version>
     <dependencies>
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -34,7 +34,7 @@
     </repositories>
 
     <properties>
-        <datax-project-version>0.0.1-SNAPSHOT</datax-project-version>
+        <datax-project-version>0.0.1</datax-project-version>
         <commons-lang3-version>3.3.2</commons-lang3-version>
         <commons-configuration-version>1.10</commons-configuration-version>
         <commons-cli-version>1.2</commons-cli-version>
