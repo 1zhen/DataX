@@ -18,7 +18,7 @@ import platform
 def isWindows():
     return platform.system() == 'Windows'
 
-DATAX_HOME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATAX_HOME = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 DATAX_VERSION = 'DATAX-OPENSOURCE-3.0'
 if isWindows():
