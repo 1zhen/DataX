@@ -1,6 +1,7 @@
 package com.alibaba.datax.plugin.writer.otswriter.model;
 
-import com.aliyun.openservices.ots.model.PrimaryKeyType;
+
+import com.alicloud.openservices.tablestore.model.PrimaryKeyType;
 
 public class OTSPKColumn {
     private String name;

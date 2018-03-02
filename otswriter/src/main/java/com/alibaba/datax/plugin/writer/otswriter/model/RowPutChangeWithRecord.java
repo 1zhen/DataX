@@ -1,8 +1,9 @@
 package com.alibaba.datax.plugin.writer.otswriter.model;
 
 import com.alibaba.datax.common.element.Record;
+import com.alicloud.openservices.tablestore.model.RowPutChange;
 
-public class RowPutChangeWithRecord extends com.aliyun.openservices.ots.model.RowPutChange implements WithRecord {
+public class RowPutChangeWithRecord extends RowPutChange implements WithRecord {
 
     private Record record;
 

@@ -11,8 +11,8 @@ import com.alibaba.datax.plugin.writer.otswriter.model.OTSPKColumn;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSConst;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSErrorMessage;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSOpType;
-import com.aliyun.openservices.ots.model.ColumnType;
-import com.aliyun.openservices.ots.model.PrimaryKeyType;
+import com.alicloud.openservices.tablestore.model.ColumnType;
+import com.alicloud.openservices.tablestore.model.PrimaryKeyType;
 
 /**
  * 解析配置中参数

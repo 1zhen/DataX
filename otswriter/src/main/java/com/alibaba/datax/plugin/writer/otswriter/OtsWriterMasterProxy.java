@@ -3,6 +3,8 @@ package com.alibaba.datax.plugin.writer.otswriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alicloud.openservices.tablestore.SyncClient;
+import com.alicloud.openservices.tablestore.model.TableMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +18,12 @@ import com.alibaba.datax.plugin.writer.otswriter.utils.GsonParser;
 import com.alibaba.datax.plugin.writer.otswriter.utils.ParamChecker;
 import com.alibaba.datax.plugin.writer.otswriter.utils.RetryHelper;
 import com.alibaba.datax.plugin.writer.otswriter.utils.WriterModelParser;
-import com.aliyun.openservices.ots.OTSClient;
-import com.aliyun.openservices.ots.model.TableMeta;
 
 public class OtsWriterMasterProxy {
     
     private OTSConf conf = new OTSConf();
     
-    private OTSClient ots = null;
+    private SyncClient ots = null;
     
     private TableMeta meta = null;
     
@@ -61,7 +61,7 @@ public class OtsWriterMasterProxy {
         
         conf.setOperation(WriterModelParser.parseOTSOpType(ParamChecker.checkStringAndGet(param, Key.WRITE_MODE)));
         
-        ots = new OTSClient(
+        ots = new SyncClient(
                 this.conf.getEndpoint(),
                 this.conf.getAccessId(),
                 this.conf.getAccessKey(),
@@ -100,7 +100,7 @@ public class OtsWriterMasterProxy {
 
     // private function
 
-    private TableMeta getTableMeta(OTSClient ots, String tableName) throws Exception {
+    private TableMeta getTableMeta(SyncClient ots, String tableName) throws Exception {
         return RetryHelper.executeWithRetry(
                 new GetTableMetaCallable(ots, tableName),
                 conf.getRetry(),

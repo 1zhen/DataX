@@ -1,10 +1,11 @@
 package com.alibaba.datax.plugin.writer.otswriter.model;
 
+import com.alicloud.openservices.tablestore.TableStoreException;
+import com.alicloud.openservices.tablestore.core.ErrorCode;
+import com.alicloud.openservices.tablestore.model.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.aliyun.openservices.ots.OTSErrorCode;
-import com.aliyun.openservices.ots.OTSException;
 
 /**
  * 添加这个类的主要目的是为了解决当用户遇到CU不够时，打印大量的日志
@@ -30,9 +31,9 @@ public class LogExceptionManager {
     }
     
     public synchronized void addException(Exception exception) {
-        if (exception instanceof OTSException) {
-            OTSException e = (OTSException)exception;
-            if (e.getErrorCode().equals(OTSErrorCode.NOT_ENOUGH_CAPACITY_UNIT)) {
+        if (exception instanceof TableStoreException) {
+            TableStoreException e = (TableStoreException)exception;
+            if (e.getErrorCode().equals(ErrorCode.NOT_ENOUGH_CAPACITY_UNIT)) {
                 countAndReset();
             } else {
                 LOG.warn(
@@ -45,8 +46,8 @@ public class LogExceptionManager {
         }
     }
     
-    public synchronized void addException(com.aliyun.openservices.ots.model.Error error, String requestId) {
-        if (error.getCode().equals(OTSErrorCode.NOT_ENOUGH_CAPACITY_UNIT)) {
+    public synchronized void addException(Error error, String requestId) {
+        if (error.getCode().equals(ErrorCode.NOT_ENOUGH_CAPACITY_UNIT)) {
             countAndReset();
         } else {
             LOG.warn(

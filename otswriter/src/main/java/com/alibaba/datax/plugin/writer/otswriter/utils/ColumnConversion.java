@@ -5,8 +5,10 @@ import com.alibaba.datax.common.exception.DataXException;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSAttrColumn;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSErrorMessage;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSPKColumn;
-import com.aliyun.openservices.ots.model.ColumnValue;
-import com.aliyun.openservices.ots.model.PrimaryKeyValue;
+import com.alicloud.openservices.tablestore.model.ColumnValue;
+import com.alicloud.openservices.tablestore.model.PrimaryKeyValue;
+
+import static com.alicloud.openservices.tablestore.model.ColumnType.STRING;
 
 
 /**

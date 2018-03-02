@@ -3,7 +3,7 @@ package com.alibaba.datax.plugin.writer.otswriter.model;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.aliyun.openservices.ots.model.PrimaryKeyValue;
+import com.alicloud.openservices.tablestore.model.PrimaryKeyValue;
 
 public class OTSRowPrimaryKey {
     

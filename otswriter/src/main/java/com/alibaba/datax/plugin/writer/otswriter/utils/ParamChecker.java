@@ -11,8 +11,8 @@ import com.alibaba.datax.common.util.Configuration;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSAttrColumn;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSErrorMessage;
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSPKColumn;
-import com.aliyun.openservices.ots.model.PrimaryKeyType;
-import com.aliyun.openservices.ots.model.TableMeta;
+import com.alicloud.openservices.tablestore.model.PrimaryKeyType;
+import com.alicloud.openservices.tablestore.model.TableMeta;
 
 public class ParamChecker {
 
@@ -116,7 +116,7 @@ public class ParamChecker {
     }
     
     public static void checkPrimaryKey(TableMeta meta, List<OTSPKColumn> pk) {
-        Map<String, PrimaryKeyType> types = meta.getPrimaryKey();
+        Map<String, PrimaryKeyType> types = meta.getPrimaryKeyMap();
         // 个数是否相等
         if (types.size() != pk.size()) {
             throw new IllegalArgumentException(String.format(OTSErrorMessage.INPUT_PK_COUNT_NOT_EQUAL_META_ERROR, pk.size(), types.size()));

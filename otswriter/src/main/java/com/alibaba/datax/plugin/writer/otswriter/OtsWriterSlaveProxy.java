@@ -2,10 +2,12 @@ package com.alibaba.datax.plugin.writer.otswriter;
 
 import com.alibaba.datax.plugin.writer.otswriter.model.*;
 import com.alibaba.datax.plugin.writer.otswriter.utils.Common;
-import com.aliyun.openservices.ots.*;
-import com.aliyun.openservices.ots.internal.OTSCallback;
-import com.aliyun.openservices.ots.internal.writer.WriterConfig;
-import com.aliyun.openservices.ots.model.*;
+import com.alicloud.openservices.tablestore.*;
+import com.alicloud.openservices.tablestore.model.ColumnValue;
+import com.alicloud.openservices.tablestore.model.ConsumedCapacity;
+import com.alicloud.openservices.tablestore.model.PrimaryKey;
+import com.alicloud.openservices.tablestore.model.RowChange;
+import com.alicloud.openservices.tablestore.writer.WriterConfig;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +26,10 @@ public class OtsWriterSlaveProxy {
 
     private static final Logger LOG = LoggerFactory.getLogger(OtsWriterSlaveProxy.class);
     private OTSConf conf;
-    private OTSAsync otsAsync;
-    private OTSWriter otsWriter;
+    private AsyncClient otsAsync;
+    private TableStoreWriter otsWriter;
 
-    private class WriterCallback implements OTSCallback<RowChange, ConsumedCapacity> {
+    private class WriterCallback implements TableStoreCallback<RowChange, ConsumedCapacity> {
 
         private TaskPluginCollector collector;
         public WriterCallback(TaskPluginCollector collector) {
@@ -35,22 +37,15 @@ public class OtsWriterSlaveProxy {
         }
 
         @Override
-        public void onCompleted(OTSContext<RowChange, ConsumedCapacity> otsContext) {
-            LOG.debug("Write row succeed. PrimaryKey: {}.", otsContext.getOTSRequest().getRowPrimaryKey());
+        public void onCompleted(RowChange rowChange, ConsumedCapacity consumedCapacity) {
+            LOG.debug("Write row succeed. PrimaryKey: {}.", rowChange.getPrimaryKey());
         }
 
         @Override
-        public void onFailed(OTSContext<RowChange, ConsumedCapacity> otsContext, OTSException ex) {
-            LOG.error("Write row failed.", ex);
-            WithRecord withRecord = (WithRecord)otsContext.getOTSRequest();
-            collector.collectDirtyRecord(withRecord.getRecord(), ex);
-        }
-
-        @Override
-        public void onFailed(OTSContext<RowChange, ConsumedCapacity> otsContext, ClientException ex) {
-            LOG.error("Write row failed.", ex);
-            WithRecord withRecord = (WithRecord)otsContext.getOTSRequest();
-            collector.collectDirtyRecord(withRecord.getRecord(), ex);
+        public void onFailed(RowChange rowChange, Exception e) {
+            LOG.error("Write row failed.", e);
+            WithRecord withRecord = (WithRecord)rowChange;
+            collector.collectDirtyRecord(withRecord.getRecord(), e);
         }
     }
 
@@ -63,16 +58,12 @@ public class OtsWriterSlaveProxy {
         clientConfigure.setSocketTimeoutInMillisecond(conf.getSocketTimeout());
         clientConfigure.setConnectionTimeoutInMillisecond(conf.getConnectTimeout());
 
-        OTSServiceConfiguration otsConfigure = new OTSServiceConfiguration();
-        otsConfigure.setRetryStrategy(new WriterRetryPolicy(conf));
-
-        otsAsync = new OTSClientAsync(
+        otsAsync = new AsyncClient(
                 conf.getEndpoint(),
                 conf.getAccessId(),
                 conf.getAccessKey(),
                 conf.getInstanceName(),
-                clientConfigure,
-                otsConfigure);
+                clientConfigure);
     }
 
     public void close() {
@@ -90,7 +81,7 @@ public class OtsWriterSlaveProxy {
         writerConfig.setMaxAttrColumnSize(conf.getRestrictConf().getAttributeColumnSize());
         writerConfig.setMaxColumnsCount(conf.getRestrictConf().getMaxColumnsCount());
         writerConfig.setMaxPKColumnSize(conf.getRestrictConf().getPrimaryKeyColumnSize());
-        otsWriter = new DefaultOTSWriter(otsAsync, conf.getTableName(), writerConfig, new WriterCallback(collector), Executors.newFixedThreadPool(3));
+        otsWriter = new DefaultTableStoreWriter(otsAsync, conf.getTableName(), writerConfig, new WriterCallback(collector), Executors.newFixedThreadPool(3));
 
         int expectColumnCount = conf.getPrimaryKeyColumn().size() + conf.getAttributeColumn().size();
         Record record;
@@ -105,7 +96,7 @@ public class OtsWriterSlaveProxy {
             
             // 类型转换
             try {
-                RowPrimaryKey primaryKey = Common.getPKFromRecord(conf.getPrimaryKeyColumn(), record);
+                PrimaryKey primaryKey = Common.getPKFromRecord(conf.getPrimaryKeyColumn(), record);
                 List<Pair<String, ColumnValue>> attributes = Common.getAttrFromRecord(conf.getPrimaryKeyColumn().size(), conf.getAttributeColumn(), record);
                 RowChange rowChange = Common.columnValuesToRowChange(conf.getTableName(), conf.getOperation(), primaryKey, attributes);
                 WithRecord withRecord = (WithRecord)rowChange;

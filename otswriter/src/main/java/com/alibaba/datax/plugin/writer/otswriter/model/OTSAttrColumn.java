@@ -1,6 +1,7 @@
 package com.alibaba.datax.plugin.writer.otswriter.model;
 
-import com.aliyun.openservices.ots.model.ColumnType;
+
+import com.alicloud.openservices.tablestore.model.ColumnType;
 
 public class OTSAttrColumn {
     private String name;

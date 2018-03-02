@@ -2,6 +2,8 @@ package com.alibaba.datax.plugin.writer.otswriter;
 
 import java.util.List;
 
+import com.alicloud.openservices.tablestore.ClientException;
+import com.alicloud.openservices.tablestore.TableStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +12,6 @@ import com.alibaba.datax.common.plugin.RecordReceiver;
 import com.alibaba.datax.common.spi.Writer;
 import com.alibaba.datax.common.util.Configuration;
 import com.alibaba.datax.plugin.writer.otswriter.utils.Common;
-import com.aliyun.openservices.ots.ClientException;
-import com.aliyun.openservices.ots.OTSException;
 
 public class OtsWriter {
     public static class Job extends Writer.Job {
@@ -23,12 +23,12 @@ public class OtsWriter {
             LOG.info("init() begin ...");
             try {
                 this.proxy.init(getPluginJobConf());
-            } catch (OTSException e) {
+            } catch (TableStoreException e) {
                 LOG.error("OTSException: {}",  e.getMessage(), e);
                 throw DataXException.asDataXException(new OtsWriterError(e.getErrorCode(), "OTS端的错误"), Common.getDetailMessage(e), e);
             } catch (ClientException e) {
                 LOG.error("ClientException: {}",  e.getMessage(), e);
-                throw DataXException.asDataXException(new OtsWriterError(e.getErrorCode(), "OTS端的错误"), Common.getDetailMessage(e), e);
+                throw DataXException.asDataXException(new OtsWriterError(e.getTraceId(), "OTS端的错误"), Common.getDetailMessage(e), e);
             } catch (IllegalArgumentException e) {
                 LOG.error("IllegalArgumentException. ErrorMsg:{}", e.getMessage(), e);
                 throw DataXException.asDataXException(OtsWriterError.INVALID_PARAM, Common.getDetailMessage(e), e);
@@ -73,12 +73,12 @@ public class OtsWriter {
             try {
                 this.proxy.init(this.getPluginJobConf());
                 this.proxy.write(lineReceiver, this.getTaskPluginCollector());
-            } catch (OTSException e) {
+            } catch (TableStoreException e) {
                 LOG.error("OTSException: {}",  e.getMessage(), e);
                 throw DataXException.asDataXException(new OtsWriterError(e.getErrorCode(), "OTS端的错误"), Common.getDetailMessage(e), e);
             } catch (ClientException e) {
                 LOG.error("ClientException: {}",  e.getMessage(), e);
-                throw DataXException.asDataXException(new OtsWriterError(e.getErrorCode(), "OTS端的错误"), Common.getDetailMessage(e), e);
+                throw DataXException.asDataXException(new OtsWriterError(e.getTraceId(), "OTS端的错误"), Common.getDetailMessage(e), e);
             } catch (IllegalArgumentException e) {
                 LOG.error("IllegalArgumentException. ErrorMsg:{}", e.getMessage(), e);
                 throw DataXException.asDataXException(OtsWriterError.INVALID_PARAM, Common.getDetailMessage(e), e);

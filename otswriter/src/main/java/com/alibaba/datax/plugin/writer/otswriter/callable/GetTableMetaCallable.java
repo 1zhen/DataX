@@ -2,17 +2,17 @@ package com.alibaba.datax.plugin.writer.otswriter.callable;
 
 import java.util.concurrent.Callable;
 
-import com.aliyun.openservices.ots.OTSClient;
-import com.aliyun.openservices.ots.model.DescribeTableRequest;
-import com.aliyun.openservices.ots.model.DescribeTableResult;
-import com.aliyun.openservices.ots.model.TableMeta;
+import com.alicloud.openservices.tablestore.SyncClient;
+import com.alicloud.openservices.tablestore.model.DescribeTableRequest;
+import com.alicloud.openservices.tablestore.model.DescribeTableResponse;
+import com.alicloud.openservices.tablestore.model.TableMeta;
 
 public class GetTableMetaCallable implements Callable<TableMeta>{
 
-    private OTSClient ots = null;
+    private SyncClient ots = null;
     private String tableName = null;
     
-    public GetTableMetaCallable(OTSClient ots, String tableName) {
+    public GetTableMetaCallable(SyncClient ots, String tableName) {
         this.ots = ots;
         this.tableName = tableName;
     }
@@ -21,9 +21,8 @@ public class GetTableMetaCallable implements Callable<TableMeta>{
     public TableMeta call() throws Exception {
         DescribeTableRequest describeTableRequest = new DescribeTableRequest();
         describeTableRequest.setTableName(tableName);
-        DescribeTableResult result = ots.describeTable(describeTableRequest);
-        TableMeta tableMeta = result.getTableMeta();
-        return tableMeta;
+        DescribeTableResponse result = ots.describeTable(describeTableRequest);
+        return result.getTableMeta();
     }
 
 }

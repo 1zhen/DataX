@@ -1,9 +1,9 @@
 package com.alibaba.datax.plugin.writer.otswriter;
 
 import com.alibaba.datax.plugin.writer.otswriter.model.OTSConf;
-import com.aliyun.openservices.ots.internal.OTSRetryStrategy;
+import com.alicloud.openservices.tablestore.model.RetryStrategy;
 
-public class WriterRetryPolicy implements OTSRetryStrategy {
+public class WriterRetryPolicy implements RetryStrategy {
     OTSConf conf;
 
     public WriterRetryPolicy(OTSConf conf) {
@@ -11,17 +11,17 @@ public class WriterRetryPolicy implements OTSRetryStrategy {
     }
 
     @Override
-    public boolean shouldRetry(String action, Exception ex, int retries) {
-        return retries <= conf.getRetry();
+    public RetryStrategy clone() {
+        return new WriterRetryPolicy(conf);
     }
 
     @Override
-    public long getPauseDelay(String action, Exception ex, int retries) {
-        if (retries <= 0) {
-            return 0;
-        }
+    public int getRetries() {
+        return conf.getRetry();
+    }
 
-        int sleepTime = conf.getSleepInMillisecond() * retries;
-        return sleepTime > 30000 ? 30000 : sleepTime;
+    @Override
+    public long nextPause(String s, Exception e) {
+        return System.currentTimeMillis() + conf.getSleepInMillisecond();
     }
 }
