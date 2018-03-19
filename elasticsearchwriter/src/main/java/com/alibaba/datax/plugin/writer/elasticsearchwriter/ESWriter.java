@@ -10,10 +10,13 @@ import com.alibaba.datax.common.util.RetryUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import io.searchbox.action.Action;
 import io.searchbox.client.JestResult;
 import io.searchbox.core.Bulk;
 import io.searchbox.core.BulkResult;
 import io.searchbox.core.Index;
+import io.searchbox.core.Update;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -22,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -57,6 +59,7 @@ public class ESWriter extends Writer {
             String indexName = Key.getIndexName(conf);
             String typeName = Key.getTypeName(conf);
             boolean dynamic = Key.getDynamic(conf);
+            boolean update = Key.getUpdate(conf);
             String mappings = genMappings(typeName);
             String settings = JSONObject.toJSONString(
                     Key.getSettings(conf)
@@ -65,6 +68,9 @@ public class ESWriter extends Writer {
 
             try {
                 boolean isIndicesExists = esClient.indicesExists(indexName);
+                if (update && !isIndicesExists) {
+                    throw new IOException("Indices must be exist in update mode.");
+                }
                 if (Key.isCleanup(this.conf) && isIndicesExists) {
                     esClient.deleteIndex(indexName);
                 }
@@ -233,6 +239,10 @@ public class ESWriter extends Writer {
         private String index;
         private String type;
         private String splitter;
+        private boolean update;
+        private String idSplitter;
+        private List<String> parent;
+        private List<String> routing;
 
         @Override
         public void init() {
@@ -245,6 +255,9 @@ public class ESWriter extends Writer {
             splitter = Key.getSplitter(conf);
             columnList = JSON.parseObject(this.conf.getString(WRITE_COLUMNS), new TypeReference<List<ESColumn>>() {
             });
+            update = Key.getUpdate(conf);
+            idSplitter = Key.getIdSplitter(conf);
+            parent = Key.getParent(conf);
 
             typeList = new ArrayList<ESFieldType>();
 
@@ -315,9 +328,19 @@ public class ESWriter extends Writer {
             for (Record record : writerBuffer) {
                 data = new HashMap<String, Object>();
                 String id = null;
+                Map<String, String> parentValueMap = null;
+                Map<String, String> routingValueMap = null;
+                if (parent != null) parentValueMap = new HashMap<String, String>();
+                if (routing != null) routingValueMap = new HashMap<String, String>();
                 for (int i = 0; i < record.getColumnNumber(); i++) {
                     Column column = record.getColumn(i);
                     String columnName = columnList.get(i).getName();
+                    if (parent != null && parent.contains(columnName)) {
+                        parentValueMap.put(columnName, column.asString());
+                    }
+                    if (routing != null && routing.contains(columnName)) {
+                        routingValueMap.put(columnName, column.asString());
+                    }
                     ESFieldType columnType = typeList.get(i);
                     //如果是数组类型，那它传入的必是字符串类型
                     if (columnList.get(i).isArray() != null && columnList.get(i).isArray()) {
@@ -334,7 +357,7 @@ public class ESWriter extends Writer {
                         switch (columnType) {
                             case ID:
                                 if (id != null) {
-                                    id += record.getColumn(i).asString();
+                                    id += idSplitter + record.getColumn(i).asString();
                                 } else {
                                     id = record.getColumn(i).asString();
                                 }
@@ -384,12 +407,47 @@ public class ESWriter extends Writer {
                         }
                     }
                 }
+                List<String> parentValues = null;
+                if (parent != null) {
+                    parentValues = new ArrayList<String>(parent.size());
+                    for (String col : parent) {
+                        parentValues.add(parentValueMap.get(col));
+                    }
+                }
+                List<String> routingValues = null;
+                if (routing != null) {
+                    routingValues = new ArrayList<String>(routing.size());
+                    for (String col : routing) {
+                        routingValues.add(routingValueMap.get(col));
+                    }
+                }
+
+                String parentValue = null;
+                if (parentValues != null) parentValue = StringUtils.join(parentValues, idSplitter);
+                String routingValue = null;
+                if (routingValues != null) routingValue = StringUtils.join(routingValues, idSplitter);
 
                 if (id == null) {
                     //id = UUID.randomUUID().toString();
-                    bulkaction.addAction(new Index.Builder(data).build());
+                    Index.Builder builder = new Index.Builder(data);
+                    if (parentValue != null) builder.setParameter("parent", parentValue);
+                    if (routingValue != null) builder.setParameter("routing", routingValue);
+                    bulkaction.addAction(builder.build());
                 } else {
-                    bulkaction.addAction(new Index.Builder(data).id(id).build());
+                    if (update) {
+                        Map<String, Object> upsertReq = new HashMap<String, Object>();
+                        upsertReq.put("doc", data);
+                        upsertReq.put("doc_as_upsert", true);
+                        Update.Builder builder = new Update.Builder(upsertReq).id(id);
+                        if (parentValue != null) builder.setParameter("parent", parentValue);
+                        if (routingValue != null) builder.setParameter("routing", routingValue);
+                        bulkaction.addAction(builder.build());
+                    } else {
+                        Index.Builder builder = new Index.Builder(data).id(id);
+                        if (parentValue != null) builder.setParameter("parent", parentValue);
+                        if (routingValue != null) builder.setParameter("routing", routingValue);
+                        bulkaction.addAction(builder.build());
+                    }
                 }
             }
 

@@ -13,14 +13,21 @@
         </dependency>
     </dependencies>
 
-    <parent>
-        <groupId>com.cloudera.cdh</groupId>
-        <artifactId>cdh-root</artifactId>
-        <version>5.11.2</version>
-    </parent>
-
     <name>datax-all</name>
     <packaging>pom</packaging>
+
+    <distributionManagement>
+        <repository>
+            <id>1zhen-releases</id>
+            <name>1Zhen Releases Repository</name>
+            <url>http://nexus.corp.1zhen.com/repository/maven-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>1zhen-snapshots</id>
+            <name>1Zhen Snapshots Repository</name>
+            <url>http://nexus.corp.1zhen.com/repository/maven-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <repositories>
         <repository>
@@ -50,7 +57,7 @@
         <tddl.version>5.1.22-1</tddl.version>
         <swift-version>1.0.0</swift-version>
 
-        <cdh.version.number>${cdh.parent.version}</cdh.version.number>
+        <cdh.version.number>5.11.2</cdh.version.number>
         <cdh.version>cdh${cdh.version.number}</cdh.version>
 
         <project-sourceEncoding>UTF-8</project-sourceEncoding>

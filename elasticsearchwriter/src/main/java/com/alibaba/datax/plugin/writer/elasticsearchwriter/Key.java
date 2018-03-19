@@ -4,6 +4,7 @@ import com.alibaba.datax.common.util.Configuration;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class Key {
@@ -127,5 +128,21 @@ public final class Key {
 
     public static boolean getDynamic(Configuration conf) {
         return conf.getBool("dynamic", false);
+    }
+
+    public static boolean getUpdate(Configuration conf) {
+        return conf.getBool("update", false);
+    }
+
+    public static String getIdSplitter(Configuration conf) {
+        return conf.getString("idSplitter", "");
+    }
+
+    public static List<String> getParent(Configuration conf) {
+        return conf.getList("parent", String.class);
+    }
+
+    public static List<String> getRouting(Configuration conf) {
+        return conf.getList("routing", String.class);
     }
 }

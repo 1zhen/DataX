@@ -43,6 +43,8 @@
             "discovery": false,
             "batchSize": 1000,
             "splitter": ",",
+            "update": true,
+            "parent": ["parent_id_column"],
             "column": [
               {"name": "pk", "type": "id"},
               { "name": "col_ip","type": "ip" },
@@ -160,16 +162,26 @@
  * 必选：否
  * 默认值：-,-
 
+* idSplitter
+ * 描述：多个ID列间的分隔符
+ * 必选：否
+
 * column
  * 描述：elasticsearch所支持的字段类型，样例中包含了全部
  * 必选：是
+
+* update
+ * 描述：部分更新模式，使用时必须指定ID列
+ * 必选：否
 
 * dynamic
  * 描述: 不使用datax的mappings，使用es自己的自动mappings
  * 必选: 否
  * 默认值: false
 
-
+* parent
+ * 描述：父文档ID列，使用时必须手动创建索引并设置mapping
+ * 必选：否
 
 ## 4 性能报告
 
