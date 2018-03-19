@@ -16,7 +16,7 @@
         <source.skip>true</source.skip>
         <top.dir>${project.basedir}/..</top.dir>
         <maven.test.skip>true</maven.test.skip>
-        <parcel.patch.count>0</parcel.patch.count>
+        <parcel.patch.count>1</parcel.patch.count>
         <parcel.release>0.${parcel.patch.count}</parcel.release>
         <parcel.folder>DATAX-${datax-project-version}-${cdh.version}.p${parcel.release}</parcel.folder>
         <parcel.file>${parcel.folder}.parcel</parcel.file>
@@ -26,7 +26,7 @@
         <parcel.package.version>${datax-project-version}+${cdh.version}+${parcel.patch.count}</parcel.package.version>
         <parcel.component.version>${datax-project-version}-${cdh.version}</parcel.component.version>
         <parcel.component.release>${cdh.version}.p${parcel.release}</parcel.component.release>
-        <parcel.depends>CDH (= ${cdh.version.number})</parcel.depends>
+        <parcel.depends>CDH (>= ${cdh.version.number})</parcel.depends>
     </properties>
 
     <build>
