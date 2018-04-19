@@ -4,7 +4,8 @@
     <parent>
         <groupId>com.alibaba.datax</groupId>
         <artifactId>datax-all</artifactId>
-        <version>${datax-project-version}</version>
+        <version>0.0.1</version>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>datax-common</artifactId>

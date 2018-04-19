@@ -116,6 +116,7 @@
         <module>plugin-rdbms-util</module>
         <module>plugin-unstructured-storage-util</module>
         <module>parcel</module>
+        <module>httpwriter</module>
     </modules>
 
     <dependencyManagement>

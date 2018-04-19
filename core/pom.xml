@@ -5,6 +5,7 @@
         <groupId>com.alibaba.datax</groupId>
         <artifactId>datax-all</artifactId>
         <version>${datax-project-version}</version>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>datax-core</artifactId>

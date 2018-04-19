@@ -1,0 +1,9 @@
+{
+    "name": "httpwriter",
+    "parameter": {
+        "url":"",
+        "method": "",
+        "batchSize": 1000,
+        "column" : []
+    }
+}
