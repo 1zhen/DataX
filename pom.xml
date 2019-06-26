@@ -41,7 +41,7 @@
     </repositories>
 
     <properties>
-        <datax-project-version>0.0.1</datax-project-version>
+        <datax-project-version>0.0.2</datax-project-version>
         <commons-lang3-version>3.3.2</commons-lang3-version>
         <commons-configuration-version>1.10</commons-configuration-version>
         <commons-cli-version>1.2</commons-cli-version>
@@ -57,7 +57,7 @@
         <tddl.version>5.1.22-1</tddl.version>
         <swift-version>1.0.0</swift-version>
 
-        <cdh.version.number>5.11.2</cdh.version.number>
+        <cdh.version.number>6.2.0</cdh.version.number>
         <cdh.version>cdh${cdh.version.number}</cdh.version>
 
         <project-sourceEncoding>UTF-8</project-sourceEncoding>

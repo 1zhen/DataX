@@ -10,6 +10,7 @@ import com.alibaba.datax.plugin.unstructuredstorage.reader.UnstructuredStorageRe
 import com.alibaba.datax.plugin.unstructuredstorage.reader.UnstructuredStorageReaderUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -29,6 +30,8 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.apache.parquet.avro.AvroParquetReader;
+import org.apache.parquet.hadoop.ParquetReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -363,6 +366,60 @@ public class DFSUtil {
         }
     }
 
+    public void parquetFileStartRead(String sourceParquetFilePath, Configuration readerSliceConfig,
+                                 RecordSender recordSender, TaskPluginCollector taskPluginCollector) {
+        LOG.info(String.format("Start Read parquet [%s].", sourceParquetFilePath));
+        List<ColumnEntry> column = UnstructuredStorageReaderUtil
+                .getListColumnEntry(readerSliceConfig, com.alibaba.datax.plugin.unstructuredstorage.reader.Key.COLUMN);
+        String nullFormat = null;
+
+        Path parquetFilePath = new Path(sourceParquetFilePath);
+        ParquetReader<GenericRecord> reader = null;
+        try {
+            reader = AvroParquetReader.<GenericRecord>builder(parquetFilePath).withConf(hadoopConf).build();
+            GenericRecord record = null;
+            while ((record = reader.read()) != null) {
+                String[] sourceLine = new String[column.size()];
+                for (int i = 0; i < column.size(); i ++) {
+                    Integer idx = column.get(i).getIndex();
+                    String name = column.get(i).getName();
+                    if (idx == null && name == null) {
+                        continue;
+                    }
+                    Object val = null;
+                    if (name != null) {
+                        val = record.get(name);
+                    } else if (idx != null) {
+                        val = record.get(idx);
+                    }
+                    if (val == null) {
+                        continue;
+                    }
+                    if (val instanceof ByteBuffer) {
+                        sourceLine[i] = new String(((ByteBuffer)val).array());
+                    } else {
+                        sourceLine[i] = val.toString();
+                    }
+                }
+                UnstructuredStorageReaderUtil.transportOneRecord(recordSender, column, sourceLine, nullFormat, taskPluginCollector);
+            }
+
+        } catch (IOException e) {
+            String message = String.format("读取文件[%s]时出错", sourceParquetFilePath);
+            LOG.error(message);
+            throw DataXException.asDataXException(HdfsReaderErrorCode.READ_PARQUETFILE_ERROR, message, e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                    LOG.info("Finally, Close AvroParquetReader.");
+                }
+            } catch (IOException e) {
+                LOG.warn(String.format("finally: 关闭AvroParquetReader失败, %s", e.getMessage()));
+            }
+        }
+    }
+
     private Record transportOneRecord(List<ColumnEntry> columnConfigs, List<Object> recordFields
             , RecordSender recordSender, TaskPluginCollector taskPluginCollector, boolean isReadAllColumns, String nullFormat) {
         Record record = recordSender.createRecord();
@@ -556,6 +613,8 @@ public class DFSUtil {
             } else if (StringUtils.equalsIgnoreCase(specifiedFileType, Constant.SEQ)) {
 
                 return isSequenceFile(filepath, in);
+            } else if (StringUtils.equalsIgnoreCase(specifiedFileType, Constant.PARQUET)) {
+                return isParquetFile(filepath, in);
             }
 
         } catch (Exception e) {
@@ -690,6 +749,23 @@ public class DFSUtil {
             }
         } catch (IOException e) {
             LOG.info(String.format("检查文件类型: [%s] 不是Sequence File.", filepath));
+        }
+        return false;
+    }
+
+    private boolean isParquetFile(String filepath, FSDataInputStream in) {
+        byte[] PARQUET_MAGIC = new byte[]{'P', 'A', 'R', '1'};
+        byte[] magic = new byte[PARQUET_MAGIC.length];
+        try {
+            in.seek(0);
+            in.readFully(magic);
+            if (Arrays.equals(magic, PARQUET_MAGIC)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IOException e) {
+            LOG.info(String.format("检查文件类型：[%s] 不是Parquet File.", filepath));
         }
         return false;
     }

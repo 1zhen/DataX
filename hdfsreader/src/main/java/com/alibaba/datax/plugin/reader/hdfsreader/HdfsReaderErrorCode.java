@@ -19,7 +19,8 @@ public enum HdfsReaderErrorCode implements ErrorCode {
     FILE_TYPE_UNSUPPORT("HdfsReader-12", "文件类型目前不支持"),
     KERBEROS_LOGIN_ERROR("HdfsReader-13", "KERBEROS认证失败"),
     READ_SEQUENCEFILE_ERROR("HdfsReader-14", "读取SequenceFile文件出错"),
-    READ_RCFILE_ERROR("HdfsReader-15", "读取RCFile文件出错"),;
+    READ_RCFILE_ERROR("HdfsReader-15", "读取RCFile文件出错"),
+    READ_PARQUETFILE_ERROR("HdfsReader-16", "读取Parquet文件出错"),;
 
     private final String code;
     private final String description;

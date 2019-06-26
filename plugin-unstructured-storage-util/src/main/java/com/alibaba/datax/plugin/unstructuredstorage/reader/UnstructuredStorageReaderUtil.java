@@ -360,14 +360,16 @@ public class UnstructuredStorageReaderUtil {
 			recordSender.sendToWriter(record);
 		} else {
 			try {
-				for (ColumnEntry columnConfig : columnConfigs) {
+				for (int i = 0; i < columnConfigs.size(); i ++) {
+					ColumnEntry columnConfig = columnConfigs.get(i);
 					String columnType = columnConfig.getType();
 					Integer columnIndex = columnConfig.getIndex();
 					String columnConst = columnConfig.getValue();
+					String columnName = columnConfig.getName();
 
 					String columnValue = null;
 
-					if (null == columnIndex && null == columnConst) {
+					if (null == columnIndex && null == columnConst && null == columnName) {
 						throw DataXException
 								.asDataXException(
 										UnstructuredStorageReaderErrorCode.NO_INDEX_VALUE,
@@ -392,12 +394,14 @@ public class UnstructuredStorageReaderUtil {
 						}
 
 						columnValue = sourceLine[columnIndex];
+					} else if (null != columnName) {
+						columnValue = sourceLine[i];
 					} else {
 						columnValue = columnConst;
 					}
 					Type type = Type.valueOf(columnType.toUpperCase());
 					// it's all ok if nullFormat is null
-					if (columnValue.equals(nullFormat)) {
+					if (columnValue != null && columnValue.equals(nullFormat)) {
 						columnValue = null;
 					}
 					switch (type) {

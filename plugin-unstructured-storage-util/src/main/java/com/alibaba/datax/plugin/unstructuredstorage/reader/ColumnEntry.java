@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSON;
 
 public class ColumnEntry {
     private Integer index;
+    private String name;
     private String type;
     private String value;
     private String format;
@@ -20,6 +21,14 @@ public class ColumnEntry {
 
     public void setIndex(Integer index) {
         this.index = index;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getType() {
